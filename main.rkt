@@ -42,8 +42,10 @@
 
 (define (delete-all-todos)
   (hash-clear! db)
-  (list)
-  )
+  (list))
+
+(define (delete-todo id)
+  (hash-remove! db id))
 
 
 (define (get-todo id)
@@ -113,6 +115,10 @@
     (make-response (todo->dict (get-todo id)) 200)
     ))
 
+(define (api/delete-todo r id)
+  (delete-todo id)
+  (make-response "OK" 200))
+
 (define-values (dispatcher dispatcher-url)
   (dispatch-rules
    [("") #:method "get" get-root]
@@ -120,6 +126,7 @@
    [("") #:method "delete" delete-root]
    [("todo" (string-arg)) #:method "get" get-todo-api]
    [("todo" (string-arg)) #:method "patch" api/update-todo]
+   [("todo" (string-arg)) #:method "delete" api/delete-todo]
    [else default-response]
    )
   )
