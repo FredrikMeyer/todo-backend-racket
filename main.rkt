@@ -33,6 +33,7 @@
   )
 
 (define (delete-all-todos)
+  (hash-clear! db)
   (list)
   )
 ;; SERVER METHODS
@@ -83,10 +84,6 @@
    [else default-response]
    )
   )
-
-(define (echo-resp r)
-  (println r)
-  (make-response "Hei" 200))
 
 (serve/servlet dispatcher
                #:servlet-path "/"
