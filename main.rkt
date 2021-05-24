@@ -15,18 +15,20 @@
 
 ;; BUSINESS LAYER
 
-(struct todo (title [id #:mutable] completed) #:transparent)
+(struct todo (title [id #:mutable] completed order) #:transparent)
 
 (define (todo->dict t)
   (hash 'title (todo-title t)
         'id (todo-id t)
         'url (string-append "https://todo-backend-racket.herokuapp.com/" "todo/" (todo-id t))
+        'order (todo-order t)
         'completed (todo-completed t))
   )
 
 (define (dict->todo d)
   (let ([title (hash-ref d 'title)]
         [id (hash-ref d 'id)]
+        [order (hash-ref d 'order)]
         [completed (hash-ref d 'completed)])
     (todo title id completed)))
 
@@ -87,7 +89,7 @@
   (let* ([post-data (request-post-data/raw r)]
          [parsed-json (bytes->jsexpr post-data)]
          [title (hash-ref parsed-json 'title)]
-         [id-of-created (add-new-todo (todo title "" #f))]
+         [id-of-created (add-new-todo (todo title "" #f 0))]
          [created (get-todo id-of-created)])
          (make-response (todo->dict created) 200))
   )
