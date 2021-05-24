@@ -2,7 +2,8 @@
 (require web-server/servlet
          web-server/servlet-env
          json
-         uuid)
+         uuid
+         racket/hash)
 
 (define port (if (getenv "PORT")
                  (string->number (getenv "PORT"))
@@ -18,9 +19,16 @@
 
 (define (todo->dict t)
   (hash 'title (todo-title t)
+        'id (todo-id t)
         'url (string-append "https://todo-backend-racket.herokuapp.com/" "todo/" (todo-id t))
         'completed (todo-completed t))
   )
+
+(define (dict->todo d)
+  (let ([title (hash-ref d 'title)]
+        [id (hash-ref d 'id)]
+        [completed (hash-ref d 'completed)])
+    (todo title id completed)))
 
 (define (get-all-todos)
   (hash-values db))
@@ -40,6 +48,11 @@
 
 (define (get-todo id)
   (hash-ref db id #f))
+
+(define (update-todo id new-val)
+  (hash-set! db id new-val)
+  new-val
+  )
 
 ;; SERVER METHODS
 
@@ -89,12 +102,24 @@
         (make-response (todo->dict result) 200)
         (make-response ":/" 404))))
 
+(define (api/update-todo r id)
+  (let* ([old-todo (get-todo id)]
+         [old-todo-hash (todo->dict old-todo)]
+         [post-data (request-post-data/raw r)]
+         [parsed-json (bytes->jsexpr post-data)]
+         [new-raw-todo (hash-union old-todo-hash parsed-json #:combine (lambda (a b) b))])
+    (println r)
+    (update-todo id (dict->todo new-raw-todo))
+    (make-response (todo->dict (get-todo id)) 200)
+    ))
+
 (define-values (dispatcher dispatcher-url)
   (dispatch-rules
    [("") #:method "get" get-root]
    [("") #:method "post" post-root]
    [("") #:method "delete" delete-root]
    [("todo" (string-arg)) #:method "get" get-todo-api]
+   [("todo" (string-arg)) #:method "patch" api/update-todo]
    [else default-response]
    )
   )
