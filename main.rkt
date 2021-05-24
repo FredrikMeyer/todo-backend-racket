@@ -30,7 +30,7 @@
         [id (hash-ref d 'id)]
         [order (hash-ref d 'order)]
         [completed (hash-ref d 'completed)])
-    (todo title id completed)))
+    (todo title id completed order)))
 
 (define (get-all-todos)
   (hash-values db))
