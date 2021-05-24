@@ -12,7 +12,8 @@
                    #:code code
                    #:headers
                    (list (header #"access-control-allow-origin" #"*")
-                         (header #"access-control-allow-headers" #"Content-Type"))))
+                         (header #"access-control-allow-headers" #"Content-Type")
+                         (header #"Access-Control-Allow-Methods" #"*"))))
 
 (define (not-found r)
   (make-response r 404)
