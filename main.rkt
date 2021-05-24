@@ -18,7 +18,7 @@
 
 (define (todo->dict t)
   (hash 'title (todo-title t)
-        'url (string "https://todo-backend-racket.herokuapp.com/" "todo" (todo-id t))
+        'url (string-append "https://todo-backend-racket.herokuapp.com/" "todo" (todo-id t))
         'completed (todo-completed t))
   )
 
