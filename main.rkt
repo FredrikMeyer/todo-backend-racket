@@ -19,7 +19,7 @@
   )
 
 (define (default-response r)
-  (make-response 200)
+  (make-response "OK:)" 200)
   )
 
 (define (get-root r)
