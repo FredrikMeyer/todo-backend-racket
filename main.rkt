@@ -18,7 +18,8 @@
     (response/jsexpr "some reponse"
                      #:code code
                      #:headers
-                     (list (header #"access-control-allow-origin" #"*"))))
+                     (list (header #"access-control-allow-origin" #"*")
+                           (header #"access-control-allow-headers" #"Content-Type"))))
   )
 
 (define (not-found r)
