@@ -1,7 +1,8 @@
 #lang racket
 (require web-server/servlet
          web-server/servlet-env
-         json)
+         json
+         uuid)
 
 (define port (if (getenv "PORT")
                  (string->number (getenv "PORT"))
@@ -9,7 +10,7 @@
 
 ;; DATABASE
 
-(define db (make-hasheq))
+(define db (make-hash))
 
 ;; BUSINESS LAYER
 
@@ -22,9 +23,12 @@
   )
 
 (define (get-all-todos)
-  (list))
+  (hash-values db))
 
 (define (add-new-todo t)
+  (let ([uid (uuid-string)])
+    (hash-set! db uid t)
+    )
   t
   )
 
@@ -52,13 +56,17 @@
 
 (define (get-root r)
   (println r)
-  (make-response (get-all-todos) 200))
+  (let* ([all-todos (get-all-todos)]
+         [as-dict (map todo->dict all-todos)])
+    (println as-dict)
+    (make-response as-dict 200)))
 
 (define (post-root r)
   (println r)
   (let* ([post-data (request-post-data/raw r)]
          [parsed-json (bytes->jsexpr post-data)]
-         [result (add-new-todo (todo "a todo" "" #f))])
+         [title (hash-ref parsed-json 'title)]
+         [result (add-new-todo (todo title "" #f))])
          (make-response (todo->dict result) 200))
   )
 
