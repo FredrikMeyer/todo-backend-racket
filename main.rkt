@@ -28,9 +28,8 @@
 (define (add-new-todo t)
   (let ([uid (uuid-string)])
     (hash-set! db uid t)
-    )
-  t
-  )
+    uid
+    ))
 
 (define (delete-all-todos)
   (hash-clear! db)
@@ -72,8 +71,9 @@
   (let* ([post-data (request-post-data/raw r)]
          [parsed-json (bytes->jsexpr post-data)]
          [title (hash-ref parsed-json 'title)]
-         [result (add-new-todo (todo title "" #f))])
-         (make-response (todo->dict result) 200))
+         [id-of-created (add-new-todo (todo title "" #f))]
+         [created (get-todo id-of-created)])
+         (make-response (todo->dict created) 200))
   )
 
 (define (delete-root r)
