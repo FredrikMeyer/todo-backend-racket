@@ -9,21 +9,23 @@
                  (string->number (getenv "PORT"))
                  8080))
 
-;; DATABASE
+
+;; SILLY DATABASE
 
 (define db (make-hash))
 
-;; BUSINESS LAYER
-
-(struct todo (title [id #:mutable] completed order) #:transparent)
+(struct todo
+  (title
+   [id #:mutable]
+   completed
+   order) #:transparent)
 
 (define (todo->dict t)
   (hash 'title (todo-title t)
         'id (todo-id t)
         'url (string-append "https://todo-backend-racket.herokuapp.com/" "todo/" (todo-id t))
         'order (todo-order t)
-        'completed (todo-completed t))
-  )
+        'completed (todo-completed t)))
 
 (define (dict->todo d)
   (let ([title (hash-ref d 'title)]
@@ -39,8 +41,7 @@
   (let ([uid (uuid-string)])
     (set-todo-id! t uid)
     (hash-set! db uid t)
-    uid
-    ))
+    uid))
 
 (define (delete-all-todos)
   (hash-clear! db)
@@ -49,17 +50,14 @@
 (define (delete-todo id)
   (hash-remove! db id))
 
-
 (define (get-todo id)
   (hash-ref db id #f))
 
 (define (update-todo id new-val)
   (hash-set! db id new-val)
-  new-val
-  )
+  new-val)
 
 ;; SERVER METHODS
-
 
 (define (make-response s code)
   (response/jsexpr s
@@ -69,15 +67,10 @@
                          (header #"access-control-allow-headers" #"Content-Type")
                          (header #"Access-Control-Allow-Methods" #"*"))))
 
-(define (not-found r)
-  (make-response r 404)
-  )
-
 (define (default-response r)
-  (make-response "OK:)" 200)
-  )
+  (make-response "OK:)" 200))
 
-(define (get-root r)
+(define (api/list-all r)
   (println r)
   (let* ([all-todos (get-all-todos)]
          [as-dict (map todo->dict all-todos)])
@@ -95,12 +88,11 @@
          [created (get-todo id-of-created)])
          (make-response (todo->dict created) 200)))
 
-(define (delete-root r)
+(define (api/delete-all r)
   (println r)
-  (make-response (delete-all-todos) 200)
-  )
+  (make-response (delete-all-todos) 200))
 
-(define (get-todo-api r id)
+(define (api/get-todo r id)
   (println r)
   (let ([result (get-todo id)])
     (if result
@@ -124,15 +116,14 @@
 
 (define-values (dispatcher dispatcher-url)
   (dispatch-rules
-   [("") #:method "get" get-root]
+   [("") #:method "get" api/list-all]
    [("") #:method "post" api/post-todo]
-   [("") #:method "delete" delete-root]
-   [("todo" (string-arg)) #:method "get" get-todo-api]
+   [("") #:method "delete" api/delete-all]
+   [("todo" (string-arg)) #:method "get" api/get-todo]
    [("todo" (string-arg)) #:method "patch" api/update-todo]
    [("todo" (string-arg)) #:method "delete" api/delete-todo]
    [else default-response]
-   )
-  )
+   ))
 
 (serve/servlet dispatcher
                #:servlet-path "/"
