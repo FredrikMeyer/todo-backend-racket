@@ -3,7 +3,8 @@
          web-server/servlet-env
          json)
 
-(define port (if (getenv "PORT") (string->number (getenv "PORT"))
+(define port (if (getenv "PORT")
+                 (string->number (getenv "PORT"))
                  8080))
 
 
@@ -13,7 +14,7 @@
           (body (h1 "It works!")))))
 
 (define (make-response code)
-  (lambda (r) 
+  (lambda (r)
     (response/jsexpr "some reponse"
                      #:code code
                      #:headers
@@ -24,10 +25,14 @@
   (make-response r 404)
   )
 
+(define (default-response)
+  (make-response 200)
+  )
+
 (define-values (go _)
   (dispatch-rules
    [("catalog") #:method "get" (make-response 200)]
-   [else (make-response 404)]
+   [else (default-response)]
    )
   )
 
