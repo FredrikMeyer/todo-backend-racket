@@ -16,9 +16,9 @@
 (struct todo (title url completed) #:transparent)
 
 (define (todo->dict t)
-  (hash "title" (todo-title t)
-        "url" (todo-url t)
-        "completed" (todo-completed t))
+  (hash 'title (todo-title t)
+        'url (todo-url t)
+        'completed (todo-completed t))
   )
 
 (define (get-all-todos)
