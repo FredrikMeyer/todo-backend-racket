@@ -84,15 +84,16 @@
     (println as-dict)
     (make-response as-dict 200)))
 
-(define (post-root r)
+(define (api/post-todo r)
   (println r)
   (let* ([post-data (request-post-data/raw r)]
          [parsed-json (bytes->jsexpr post-data)]
          [title (hash-ref parsed-json 'title)]
-         [id-of-created (add-new-todo (todo title "" #f 0))]
+         [completed (hash-ref parsed-json 'completed #f)]
+         [order (hash-ref parsed-json 'order 0)]
+         [id-of-created (add-new-todo (todo title "" completed order))]
          [created (get-todo id-of-created)])
-         (make-response (todo->dict created) 200))
-  )
+         (make-response (todo->dict created) 200)))
 
 (define (delete-root r)
   (println r)
@@ -124,7 +125,7 @@
 (define-values (dispatcher dispatcher-url)
   (dispatch-rules
    [("") #:method "get" get-root]
-   [("") #:method "post" post-root]
+   [("") #:method "post" api/post-todo]
    [("") #:method "delete" delete-root]
    [("todo" (string-arg)) #:method "get" get-todo-api]
    [("todo" (string-arg)) #:method "patch" api/update-todo]
