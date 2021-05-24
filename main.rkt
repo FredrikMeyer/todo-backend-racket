@@ -14,11 +14,11 @@
 
 ;; BUSINESS LAYER
 
-(struct todo (title url completed) #:transparent)
+(struct todo (title id completed) #:transparent)
 
 (define (todo->dict t)
   (hash 'title (todo-title t)
-        'url (todo-url t)
+        'url "some-url"
         'completed (todo-completed t))
   )
 
@@ -36,6 +36,11 @@
   (hash-clear! db)
   (list)
   )
+
+
+(define (get-todo id)
+  (hash-ref db id #f))
+
 ;; SERVER METHODS
 
 
@@ -76,11 +81,19 @@
   (make-response (delete-all-todos) 200)
   )
 
+(define (get-todo-api r id)
+  (println r)
+  (let ([result (get-todo id)])
+    (if result
+        (make-response (todo->dict result) 200)
+        (make-response ":/" 404))))
+
 (define-values (dispatcher dispatcher-url)
   (dispatch-rules
    [("") #:method "get" get-root]
    [("") #:method "post" post-root]
    [("") #:method "delete" delete-root]
+   [("todo" (string-arg)) #:method "get" get-todo-api]
    [else default-response]
    )
   )
