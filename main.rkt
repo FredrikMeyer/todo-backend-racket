@@ -14,11 +14,11 @@
 
 ;; BUSINESS LAYER
 
-(struct todo (title id completed) #:transparent)
+(struct todo (title [id #:mutable] completed) #:transparent)
 
 (define (todo->dict t)
   (hash 'title (todo-title t)
-        'url (string-append "https://todo-backend-racket.herokuapp.com/" "todo" (todo-id t))
+        'url (string-append "https://todo-backend-racket.herokuapp.com/" "todo/" (todo-id t))
         'completed (todo-completed t))
   )
 
@@ -27,6 +27,7 @@
 
 (define (add-new-todo t)
   (let ([uid (uuid-string)])
+    (set-todo-id! t uid)
     (hash-set! db uid t)
     uid
     ))
