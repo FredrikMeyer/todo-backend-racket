@@ -18,7 +18,7 @@
   (make-response r 404)
   )
 
-(define (default-response)
+(define (default-response r)
   (make-response 200)
   )
 
@@ -34,7 +34,7 @@
   (dispatch-rules
    [("") #:method "get" get-root]
    [("") #:method "post" post-root]
-   [else (default-response)]
+   [else default-response]
    )
   )
 
