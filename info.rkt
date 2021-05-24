@@ -3,6 +3,6 @@
 (define collection "todo-backend-racket")
 
 (define deps
-  '(uuid))
+  '("uuid"))
 (define build-deps
   '())
