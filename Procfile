@@ -1,1 +1,1 @@
-web: racket -l todo-backend-racket/server
+web: racket -l todo-backend-racket/main
